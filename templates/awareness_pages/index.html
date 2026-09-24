@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎉 Cybersecurity Awareness Challenge</title>
+<style>
+/* ── Reset & Globals ──────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:        #07060b;
+  --surface:   #12111a;
+  --border:    #221f33;
+  --purple:    #a855f7;
+  --purple-g:  #7c3aed;
+  --pink:      #ec4899;
+  --cyan:      #22d3ee;
+  --green:     #22c55e;
+  --red:       #ef4444;
+  --gold:      #fbbf24;
+  --text:      #e2e0ea;
+  --muted:     #7e7a8f;
+  --radius:    16px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500&display=swap');
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Animated background ──────────────────────────────────────────── */
+.bg-glow {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 20%, rgba(168,85,247,.12), transparent),
+    radial-gradient(ellipse 500px 500px at 80% 60%, rgba(236,72,153,.08), transparent),
+    radial-gradient(ellipse 400px 300px at 50% 90%, rgba(34,211,238,.06), transparent);
+}
+
+/* ── Confetti canvas ──────────────────────────────────────────────── */
+#confetti-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+/* ── Page ─────────────────────────────────────────────────────────── */
+.page {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 32px 16px;
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+.header {
+  text-align: center; margin-bottom: 36px;
+  animation: fadeDown .8s ease-out;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.header .emoji { font-size: 3rem; margin-bottom: 8px; }
+
+.header h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--pink), var(--purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.15;
+}
+
+.header p {
+  color: var(--muted); font-size: 1rem; margin-top: 8px;
+  max-width: 420px; margin-inline: auto;
+}
+
+/* ── Wheel container ──────────────────────────────────────────────── */
+.wheel-wrapper {
+  position: relative; width: 320px; height: 320px;
+  margin-bottom: 32px;
+  animation: fadeUp 1s ease-out .3s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.wheel-glow {
+  position: absolute; inset: -30px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,85,247,.25), transparent 70%);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: .7; }
+  50%      { transform: scale(1.08); opacity: 1; }
+}
+
+.wheel-border {
+  position: absolute; inset: -6px; border-radius: 50%;
+  background: conic-gradient(var(--purple), var(--pink), var(--cyan), var(--gold), var(--purple));
+  animation: borderSpin 8s linear infinite;
+}
+
+@keyframes borderSpin {
+  to { transform: rotate(360deg); }
+}
+
+.wheel-canvas-wrap {
+  position: absolute; inset: 4px; border-radius: 50%; overflow: hidden;
+  background: var(--surface);
+}
+
+#wheel-canvas {
+  width: 100%; height: 100%;
+  transition: transform 4s cubic-bezier(.17,.67,.12,.99);
+}
+
+/* pointer */
+.wheel-pointer {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 28px solid var(--gold);
+  filter: drop-shadow(0 0 8px rgba(251,191,36,.6));
+  z-index: 5;
+}
+
+/* ── Spin button ──────────────────────────────────────────────────── */
+.spin-btn {
+  position: relative;
+  padding: 16px 52px; border: none; border-radius: 60px;
+  font-family: inherit; font-size: 1.15rem; font-weight: 800;
+  color: #fff; cursor: pointer;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  box-shadow: 0 0 30px rgba(168,85,247,.35);
+  transition: transform .2s, box-shadow .2s;
+  animation: fadeUp 1s ease-out .6s both;
+  text-transform: uppercase; letter-spacing: 2px;
+}
+
+.spin-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 0 50px rgba(168,85,247,.5);
+}
+
+.spin-btn:active { transform: scale(.97); }
+
+.spin-btn:disabled {
+  opacity: .5; cursor: not-allowed;
+  transform: none; box-shadow: none;
+}
+
+/* ── Consent modal overlay ────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s;
+}
+
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 32px;
+  max-width: 520px; width: 90%;
+  transform: translateY(30px) scale(.95);
+  transition: transform .4s;
+  box-shadow: 0 0 80px rgba(168,85,247,.15);
+}
+
+.modal-overlay.active .modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal h2 {
+  font-size: 1.3rem; font-weight: 800; color: var(--gold);
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+}
+
+.modal p { color: var(--muted); line-height: 1.6; margin-bottom: 16px; font-size: .92rem; }
+
+.modal .checklist { list-style: none; margin-bottom: 20px; }
+
+.modal .checklist li {
+  padding: 6px 0; color: var(--text); font-size: .9rem;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+
+.modal .checklist li::before {
+  content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0;
+}
+
+.modal .purpose {
+  background: rgba(168,85,247,.08);
+  border-left: 3px solid var(--purple);
+  padding: 12px 16px; border-radius: 8px;
+  margin-bottom: 24px; font-size: .88rem; color: var(--muted);
+}
+
+.modal-actions {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+
+.modal-actions button {
+  flex: 1; padding: 14px 20px; border: none; border-radius: 10px;
+  font-family: inherit; font-weight: 700; font-size: .95rem;
+  cursor: pointer; transition: transform .2s, opacity .2s;
+}
+
+.btn-accept {
+  background: linear-gradient(135deg, var(--green), #16a34a);
+  color: #fff;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border) !important;
+  color: var(--muted);
+}
+
+.btn-accept:hover { transform: scale(1.03); }
+.btn-cancel:hover { opacity: .7; }
+
+/* ── Result card ──────────────────────────────────────────────────── */
+.result-card {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  max-width: 520px; width: 90%;
+  margin-top: 28px;
+  animation: fadeUp .6s ease-out;
+}
+
+.result-card.visible { display: block; }
+
+.result-card h3 {
+  color: var(--purple); font-size: 1.1rem; margin-bottom: 16px;
+}
+
+.result-card .row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: .9rem;
+}
+
+.result-card .row:last-child { border-bottom: none; }
+
+.result-card .label { color: var(--muted); }
+.result-card .value { color: var(--text); font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: .85rem; }
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: .75rem; font-weight: 700;
+}
+.badge-granted { background: rgba(34,197,94,.15); color: var(--green); }
+.badge-denied  { background: rgba(239,68,68,.15); color: var(--red); }
+
+.map-link {
+  display: inline-block; margin-top: 12px; padding: 10px 20px;
+  border-radius: 8px; background: rgba(168,85,247,.12);
+  color: var(--purple); text-decoration: none; font-weight: 600;
+  font-size: .88rem; transition: background .2s;
+}
+.map-link:hover { background: rgba(168,85,247,.22); }
+
+/* ── Camera section ───────────────────────────────────────────────── */
+.camera-section {
+  display: none;
+  max-width: 520px; width: 90%;
+  margin-top: 20px;
+  animation: fadeUp .6s ease-out;
+}
+
+.camera-section.visible { display: block; }
+
+.camera-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px; text-align: center;
+}
+
+.camera-card h3 {
+  color: var(--cyan); margin-bottom: 12px;
+}
+
+.camera-card video {
+  width: 100%; max-width: 400px;
+  border-radius: 12px; margin: 12px 0;
+  border: 2px solid var(--border);
+}
+
+.camera-card button {
+  margin: 6px;
+  padding: 10px 24px; border: none; border-radius: 8px;
+  font-family: inherit; font-weight: 600; cursor: pointer;
+  transition: transform .2s;
+}
+
+.camera-card button:hover { transform: scale(1.04); }
+
+.btn-cam-start { background: var(--cyan); color: #000; }
+.btn-cam-stop  { background: var(--red); color: #fff; }
+
+/* ── Awareness banner ─────────────────────────────────────────────── */
+.awareness-banner {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(135deg, #1a1025, #12111a);
+  border-top: 1px solid var(--border);
+  padding: 14px 20px;
+  text-align: center; z-index: 50;
+  font-size: .82rem; color: var(--muted);
+}
+
+.awareness-banner strong { color: var(--gold); }
+
+/* ── Browser info section ─────────────────────────────────────────── */
+.browser-section {
+  display: none;
+  max-width: 520px; width: 90%;
+  margin-top: 20px;
+  animation: fadeUp .6s ease-out;
+}
+
+.browser-section.visible { display: block; }
+
+.browser-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.browser-card h3 { color: var(--cyan); margin-bottom: 4px; }
+.browser-card .note { color: var(--muted); font-size: .82rem; margin-bottom: 16px; }
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .wheel-wrapper { width: 260px; height: 260px; }
+  .modal { padding: 24px 20px; }
+  .modal-actions { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ── Main page ────────────────────────────────────────────────── -->
+<div class="page" id="page-main">
+  <div class="header">
+    <div class="emoji">🎉🏆🎉</div>
+    <h1>CONGRATULATIONS!</h1>
+    <p>You have been selected for a cybersecurity awareness challenge! Spin the wheel to continue.</p>
+  </div>
+
+  <div class="wheel-wrapper">
+    <div class="wheel-glow"></div>
+    <div class="wheel-border"></div>
+    <div class="wheel-canvas-wrap">
+      <canvas id="wheel-canvas" width="312" height="312"></canvas>
+    </div>
+    <div class="wheel-pointer"></div>
+  </div>
+
+  <button class="spin-btn" id="btn-spin">🎰 SPIN NOW</button>
+
+  <!-- Result card -->
+  <div class="result-card" id="result-card"></div>
+
+  <!-- Browser exposure card -->
+  <div class="browser-section" id="browser-section">
+    <div class="browser-card">
+      <h3>🔍 Browser Exposure Report</h3>
+      <p class="note">This information can contribute to browser fingerprinting.</p>
+      <div id="browser-info-rows"></div>
+    </div>
+  </div>
+
+  <!-- Camera section -->
+  <div class="camera-section" id="camera-section">
+    <div class="camera-card">
+      <h3>📷 Camera Permission Awareness</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:12px;">
+        Demonstrating how websites can request camera access.
+      </p>
+      <video id="camera-preview" autoplay playsinline style="display:none;"></video>
+      <div>
+        <button class="btn-cam-start" id="btn-cam-start">Start Camera</button>
+        <button class="btn-cam-stop" id="btn-cam-stop" style="display:none;">Stop Camera</button>
+      </div>
+      <p id="camera-status" style="margin-top:10px;font-size:.85rem;color:var(--muted);"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Consent modal ────────────────────────────────────────────── -->
+<div class="modal-overlay" id="consent-modal">
+  <div class="modal">
+    <h2>🔒 CYBERSECURITY TRAINING NOTICE</h2>
+    <p>This is an <strong style="color:var(--gold)">authorized security awareness exercise</strong>.</p>
+    <p>By continuing, you agree that this training system may record:</p>
+    <ul class="checklist">
+      <li>Session IP address for training identification</li>
+      <li>Browser information</li>
+      <li>Permission choices</li>
+      <li>Location information <strong>ONLY</strong> if browser permission is granted</li>
+    </ul>
+    <div class="purpose">
+      <strong>Purpose:</strong> Demonstrating website permission and privacy risks in a controlled training environment.
+    </div>
+    <div class="modal-actions">
+      <button class="btn-accept" id="btn-accept">✅ ACCEPT &amp; SPIN</button>
+      <button class="btn-cancel" id="btn-cancel">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Awareness footer ─────────────────────────────────────────── -->
+<div class="awareness-banner">
+  <strong>⚠ SECURITY AWARENESS EXERCISE</strong> — This page is part of an authorized cybersecurity training simulation by <strong>STALKER Framework</strong>.
+</div>
+
+<script>
+/* ================================================================
+   STALKER – Training Landing Page Logic
+   ================================================================ */
+
+const CAMPAIGN_ID = '{{CAMPAIGN_ID}}';
+const API_BASE = window.location.origin;
+
+let participantId = null;
+let cameraStream = null;
+
+/* ── Wheel drawing ───────────────────────────────────────────────── */
+const SEGMENTS = [
+  { label: '🎁 Prize',     color: '#7c3aed' },
+  { label: '🔒 Security',  color: '#a855f7' },
+  { label: '💎 Bonus',     color: '#ec4899' },
+  { label: '🛡️ Aware',    color: '#7c3aed' },
+  { label: '🏆 Winner',    color: '#a855f7' },
+  { label: '🔐 Shield',    color: '#ec4899' },
+  { label: '⭐ Lucky',     color: '#7c3aed' },
+  { label: '🎯 Jackpot',   color: '#a855f7' },
+];
+
+function drawWheel(rotation = 0) {
+  const canvas = document.getElementById('wheel-canvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 8;
+  const arc = (2 * Math.PI) / SEGMENTS.length;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  SEGMENTS.forEach((seg, i) => {
+    const startAngle = arc * i + rotation;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, startAngle + arc);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.12)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Label
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startAngle + arc / 2);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px Inter, sans-serif';
+    ctx.fillText(seg.label, r * 0.6, 5);
+    ctx.restore();
+  });
+
+  // Center dot
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, 2 * Math.PI);
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.2)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+drawWheel();
+
+/* ── Confetti ─────────────────────────────────────────────────────── */
+const confettiCanvas = document.getElementById('confetti-canvas');
+const cctx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+let confettiRunning = false;
+
+function resizeConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeConfetti);
+resizeConfetti();
+
+function launchConfetti() {
+  confettiPieces = [];
+  const colors = ['#a855f7','#ec4899','#22d3ee','#fbbf24','#22c55e','#ef4444'];
+  for (let i = 0; i < 180; i++) {
+    confettiPieces.push({
+      x: Math.random() * confettiCanvas.width,
+      y: -20 - Math.random() * 400,
+      w: 6 + Math.random() * 6,
+      h: 4 + Math.random() * 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vy: 2 + Math.random() * 4,
+      vx: (Math.random() - .5) * 3,
+      rot: Math.random() * 360,
+      vr: (Math.random() - .5) * 10,
+    });
+  }
+  confettiRunning = true;
+  animateConfetti();
+}
+
+function animateConfetti() {
+  if (!confettiRunning) return;
+  cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  let alive = false;
+  confettiPieces.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += .05;
+    if (p.y < confettiCanvas.height + 20) alive = true;
+    cctx.save();
+    cctx.translate(p.x, p.y);
+    cctx.rotate(p.rot * Math.PI / 180);
+    cctx.fillStyle = p.color;
+    cctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    cctx.restore();
+  });
+  if (alive) requestAnimationFrame(animateConfetti);
+  else confettiRunning = false;
+}
+
+/* ── API helpers ──────────────────────────────────────────────────── */
+async function api(method, path, body) {
+  try {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(API_BASE + path, opts);
+    return res.ok ? await res.json() : null;
+  } catch { return null; }
+}
+
+/* ── Collect browser info ─────────────────────────────────────────── */
+function collectBrowserInfo() {
+  const ua = navigator.userAgent;
+  let browser = 'Unknown', os = 'Unknown';
+
+  if (ua.includes('Firefox'))      browser = 'Firefox';
+  else if (ua.includes('Edg'))     browser = 'Edge';
+  else if (ua.includes('Chrome'))  browser = 'Chrome';
+  else if (ua.includes('Safari'))  browser = 'Safari';
+
+  if (ua.includes('Windows'))      os = 'Windows';
+  else if (ua.includes('Mac'))     os = 'macOS';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('Linux'))   os = 'Linux';
+  else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+  return {
+    browser,
+    os,
+    screen_resolution: `${screen.width}x${screen.height}`,
+    language: navigator.language || 'unknown',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown',
+    user_agent: ua,
+  };
+}
+
+/* ── Show browser info card ───────────────────────────────────────── */
+function showBrowserInfo(info) {
+  const container = document.getElementById('browser-info-rows');
+  const rows = [
+    ['Browser', info.browser],
+    ['Operating System', info.os],
+    ['Screen Resolution', info.screen_resolution],
+    ['Language', info.language],
+    ['Timezone', info.timezone],
+  ];
+  container.innerHTML = rows.map(([label, value]) => `
+    <div class="row" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.88rem;">
+      <span style="color:var(--muted)">${label}</span>
+      <span style="color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.82rem;">${value}</span>
+    </div>
+  `).join('');
+  document.getElementById('browser-section').classList.add('visible');
+}
+
+/* ── Show result card ─────────────────────────────────────────────── */
+function showResult(data) {
+  const card = document.getElementById('result-card');
+  let html = `<h3>📋 Training Session Result</h3>`;
+
+  const rows = [
+    ['Participant', data.participantId?.substring(0, 10) || '—'],
+    ['IP Address', data.ip || '—'],
+    ['Location Permission', data.locationStatus || 'PENDING'],
+  ];
+
+  if (data.lat && data.lon) {
+    rows.push(['Coordinates', `${data.lat.toFixed(6)}, ${data.lon.toFixed(6)}`]);
+  }
+
+  rows.forEach(([label, value]) => {
+    let badge = '';
+    if (value === 'GRANTED')  badge = '<span class="badge badge-granted">GRANTED</span>';
+    else if (value === 'DENIED') badge = '<span class="badge badge-denied">DENIED</span>';
+    else badge = `<span class="value">${value}</span>`;
+
+    html += `<div class="row"><span class="label">${label}</span>${badge}</div>`;
+  });
+
+  if (data.lat && data.lon) {
+    const mapsUrl = `https://maps.google.com/?q=${data.lat},${data.lon}`;
+    html += `<a class="map-link" href="${mapsUrl}" target="_blank" rel="noopener">🗺️ Open in Google Maps</a>`;
+  }
+
+  card.innerHTML = html;
+  card.classList.add('visible');
+}
+
+/* ── Spin the wheel ───────────────────────────────────────────────── */
+function spinWheel() {
+  const canvas = document.getElementById('wheel-canvas');
+  const totalRotation = 1800 + Math.random() * 1800; // 5-10 full rotations
+  canvas.style.transform = `rotate(${totalRotation}deg)`;
+  launchConfetti();
+}
+
+/* ── Camera ───────────────────────────────────────────────────────── */
+document.getElementById('btn-cam-start').addEventListener('click', async () => {
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const video = document.getElementById('camera-preview');
+    video.srcObject = cameraStream;
+    video.style.display = 'block';
+    document.getElementById('btn-cam-start').style.display = 'none';
+    document.getElementById('btn-cam-stop').style.display = 'inline-block';
+    document.getElementById('camera-status').innerHTML = '<span class="badge badge-granted">CAMERA GRANTED</span>';
+
+    api('POST', '/api/camera', {
+      participant_id: participantId,
+      campaign_id: CAMPAIGN_ID,
+      permission_status: 'GRANTED',
+    });
+
+    api('POST', '/api/events', {
+      participant_id: participantId,
+      campaign_id: CAMPAIGN_ID,
+      event_type: 'CAMERA_GRANTED',
+    });
+
+  } catch (err) {
+    document.getElementById('camera-status').innerHTML = '<span class="badge badge-denied">CAMERA DENIED</span>';
+
+    api('POST', '/api/camera', {
+      participant_id: participantId,
+      campaign_id: CAMPAIGN_ID,
+      permission_status: 'DENIED',
+    });
+
+    api('POST', '/api/events', {
+      participant_id: participantId,
+      campaign_id: CAMPAIGN_ID,
+      event_type: 'CAMERA_DENIED',
+    });
+  }
+});
+
+document.getElementById('btn-cam-stop').addEventListener('click', () => {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  document.getElementById('camera-preview').style.display = 'none';
+  document.getElementById('btn-cam-start').style.display = 'inline-block';
+  document.getElementById('btn-cam-stop').style.display = 'none';
+  document.getElementById('camera-status').innerHTML = '<span style="color:var(--muted)">Camera stopped.</span>';
+});
+
+/* ── Main flow ────────────────────────────────────────────────────── */
+const btnSpin   = document.getElementById('btn-spin');
+const btnAccept = document.getElementById('btn-accept');
+const btnCancel = document.getElementById('btn-cancel');
+const modal     = document.getElementById('consent-modal');
+
+// Step 1: Click SPIN → show consent
+btnSpin.addEventListener('click', () => {
+  modal.classList.add('active');
+});
+
+// Step 2a: CANCEL
+btnCancel.addEventListener('click', async () => {
+  modal.classList.remove('active');
+
+  await api('POST', '/api/consent', {
+    campaign_id: CAMPAIGN_ID,
+    consent_given: false,
+  });
+
+  btnSpin.disabled = true;
+  btnSpin.textContent = 'CONSENT DECLINED';
+});
+
+// Step 2b: ACCEPT & SPIN
+btnAccept.addEventListener('click', async () => {
+  modal.classList.remove('active');
+  btnSpin.disabled = true;
+  btnSpin.textContent = '⏳ SPINNING...';
+
+  // Record consent & create participant
+  const consent = await api('POST', '/api/consent', {
+    campaign_id: CAMPAIGN_ID,
+    consent_given: true,
+  });
+
+  if (!consent) {
+    btnSpin.textContent = 'Error – try again';
+    btnSpin.disabled = false;
+    return;
+  }
+
+  participantId = consent.participant_id;
+
+  // Spin animation
+  spinWheel();
+
+  // Collect & send browser info
+  const browserInfo = collectBrowserInfo();
+  browserInfo.participant_id = participantId;
+  await api('POST', '/api/browser-info', browserInfo);
+  showBrowserInfo(browserInfo);
+
+  // Request geolocation
+  const resultData = {
+    participantId,
+    ip: '(server-recorded)',
+    locationStatus: 'PENDING',
+    lat: null,
+    lon: null,
+  };
+
+  if ('geolocation' in navigator) {
+    try {
+      const pos = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 15000,
+        });
+      });
+
+      resultData.locationStatus = 'GRANTED';
+      resultData.lat = pos.coords.latitude;
+      resultData.lon = pos.coords.longitude;
+
+      await api('POST', '/api/location', {
+        participant_id: participantId,
+        campaign_id: CAMPAIGN_ID,
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        permission_status: 'GRANTED',
+      });
+
+    } catch {
+      resultData.locationStatus = 'DENIED';
+
+      await api('POST', '/api/location', {
+        participant_id: participantId,
+        campaign_id: CAMPAIGN_ID,
+        permission_status: 'DENIED',
+      });
+    }
+  } else {
+    resultData.locationStatus = 'UNSUPPORTED';
+  }
+
+  // Show result
+  setTimeout(() => {
+    btnSpin.textContent = '✅ COMPLETED';
+    showResult(resultData);
+
+    // Show camera section
+    document.getElementById('camera-section').classList.add('visible');
+  }, 4200);
+});
+</script>
+</body>
+</html>

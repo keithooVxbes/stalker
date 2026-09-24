@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* ── STALKER Design Tokens ───────────────────────────────────────── */
+:root {
+  --bg:         #07060b;
+  --surface:    #0f0e17;
+  --surface-2:  #161525;
+  --border:     #1f1d30;
+  --purple:     #a855f7;
+  --purple-dim: #7c3aed;
+  --pink:       #ec4899;
+  --cyan:       #22d3ee;
+  --green:      #22c55e;
+  --red:        #ef4444;
+  --gold:       #fbbf24;
+  --text:       #e2e0ea;
+  --muted:      #6b6880;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--purple-dim); }
