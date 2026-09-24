@@ -11,12 +11,6 @@
 
 **Security Tracking Awareness & Learning Knowledge Education Research**
 
-> *"Educating defenders by understanding attacker techniques through controlled cybersecurity simulations."*
-
-**Creator:** `0xPurpleMiaw16`
-**Version:** `1.0.0`
-**Category:** Cybersecurity Awareness Framework / Red Team Training Platform / Browser Privacy Research Laboratory
-
 ---
 
 ## Table of Contents
