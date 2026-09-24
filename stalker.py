@@ -115,10 +115,10 @@ def _start_tunnel(port: str):
         console.print(f"  [bold green]✓[/] Tunnel active!\n")
         console.print(
             Panel(
-                f"[bold bright_white]Public HTTPS URL:[/]\n\n"
+                f"[bold bright_white]Tunnel Active (Base URL):[/]\n\n"
                 f"[bold underline bright_cyan]{_tunnel_url}[/]\n\n"
-                f"[dim]Share this URL with participants.\n"
-                f"Camera & Location permissions will work over HTTPS.[/]",
+                f"[dim]Gunakan menu [02] Generate Awareness Link\n"
+                f"untuk mendapatkan link lengkap (dengan ID campaign) yang bisa disebar.[/]",
                 border_style="green",
                 padding=(1, 4),
             )

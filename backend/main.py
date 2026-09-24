@@ -92,6 +92,10 @@ async def add_security_headers(request: Request, call_next):
 # Include API routes
 app.include_router(router)
 
+@app.get("/")
+async def root():
+    return {"message": "STALKER Framework API is running. Access /docs for API documentation."}
+
 # ── Serve training landing page ───────────────────────────────────────────────
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates" / "awareness_pages"
