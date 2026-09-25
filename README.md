@@ -122,7 +122,7 @@ stalker/
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/stalker.git
+git clone https://github.com/keithooVxbes/stalker.git
 cd stalker
 
 # Install Python dependencies
