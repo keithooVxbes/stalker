@@ -28,11 +28,9 @@ MENU_ITEMS = [
 def display_menu():
     """Render the main menu and return the user's choice."""
     table = Table(
-        box=box.SIMPLE_HEAVY,
-        border_style="bright_magenta",
+        box=None,
         show_header=False,
         padding=(0, 3),
-        expand=True,
     )
     table.add_column("Code", style="bold bright_cyan", width=6, justify="center")
     table.add_column("Action", style="bright_white")
@@ -40,14 +38,8 @@ def display_menu():
     for code, label in MENU_ITEMS:
         table.add_row(f"[{code}]", label)
 
-    console.print(
-        Panel(
-            table,
-            title="[bold bright_white]MAIN MENU[/]",
-            border_style="bright_magenta",
-            padding=(1, 2),
-        )
-    )
+    console.print("\n  [bold bright_white]MAIN MENU[/]")
+    console.print(table)
 
     choice = Prompt.ask(
         "\n  [bold bright_cyan]stalker[/][bold bright_magenta]>[/]",

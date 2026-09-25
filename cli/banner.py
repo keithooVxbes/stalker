@@ -40,25 +40,9 @@ def display_banner():
     """Display the STALKER framework banner with system info."""
     console.print(BANNER)
     console.print(
-        f"  [bold bright_white]{CODENAME} Framework[/] "
-        f"[dim]v{VERSION}[/]\n",
-        justify="center",
-    )
-    console.print(
-        f"  [dim italic]Creator:[/] [bold bright_cyan]{CREATOR}[/]\n",
-        justify="center",
-    )
-    console.print(
-        "  [italic bright_white]\"Educating defenders by understanding attacker techniques\n"
-        "  through controlled cybersecurity simulations.\"[/]\n"
+        f"  [dim italic]Creator:[/] [bold bright_cyan]{CREATOR}[/]\n"
     )
 
-    # Modules
-    console.print("  [bold bright_white]Modules:[/]\n")
-    for name, loaded in MODULES:
-        icon = "[bold green]✓[/]" if loaded else "[bold red]✗[/]"
-        console.print(f"    [{icon}] {name}")
-    console.print()
 
 
 def display_separator():
