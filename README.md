@@ -1,4 +1,3 @@
-# STALKER Framework v1.0.0
 
 ```
 ███████╗████████╗ █████╗ ██╗     ██╗  ██╗███████╗██████╗
@@ -10,12 +9,6 @@
 ```
 
 **Security Tracking Awareness & Learning Knowledge Education Research**
-
-> *"Educating defenders by understanding attacker techniques through controlled cybersecurity simulations."*
-
-**Creator:** `0xPurpleMiaw16`
-**Version:** `1.0.0`
-**Category:** Cybersecurity Awareness Framework / Red Team Training Platform / Browser Privacy Research Laboratory
 
 ---
 
@@ -63,11 +56,11 @@ This framework is **strictly for authorized cybersecurity training**. It is **NO
 | Module | Description |
 |--------|-------------|
 | Campaign Generator | Create & manage training campaigns with unique URLs |
-| 🌐 Training Landing Pages | Social engineering awareness pages with interactive elements |
-| 🔐 Consent System | Mandatory consent modal before any data collection |
-| 📍 Geolocation Awareness | Demonstrate browser location permission risks |
-| 📷 Camera Awareness | Optional camera permission demonstration |
-| 🔍 Browser Analysis | Collect educational browser fingerprinting data |
+| Training Landing Pages | Social engineering awareness pages with interactive elements |
+| Consent System | Mandatory consent modal before any data collection |
+| Geolocation Awareness | Demonstrate browser location permission risks |
+| Camera Awareness | Optional camera permission demonstration |
+| Browser Analysis | Collect educational browser fingerprinting data |
 | Reporting Engine | Generate HTML & JSON security awareness reports |
 | SOC Dashboard | React-based admin dashboard with analytics |
 | Security | JWT auth, bcrypt hashing, rate limiting, CSRF protection |
